@@ -1,0 +1,19 @@
+{
+  "name": "maison-intelligente-dashboard",
+  "version": "1.0.0",
+  "description": "Dashboard temps réel maison (Express + Socket.IO + broker MQTT embarqué)",
+  "main": "server.js",
+  "scripts": {
+    "start": "node server.js"
+  },
+  "dependencies": {
+    "aedes": "^0.51.3",
+    "bcryptjs": "^2.4.3",
+    "express": "^4.19.2",
+    "express-rate-limit": "^8.6.2",
+    "express-session": "^1.18.0",
+    "mqtt": "^5.10.1",
+    "socket.io": "^4.7.5",
+    "sqlite3": "^5.1.7"
+  }
+}

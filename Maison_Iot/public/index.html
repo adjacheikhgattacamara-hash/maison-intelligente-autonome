@@ -1,0 +1,297 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Maison Intelligente Autonome — Dashboard</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,500;9..144,600&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<link rel="icon" type="image/png" href="/logo.png" />
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+<link rel="stylesheet" href="/style.css" />
+</head>
+<body>
+
+<div class="page">
+  <div class="app-shell">
+
+    <!-- ============ SIDEBAR ============ -->
+    <aside class="sidebar">
+      <div class="brand-mark" title="Maison Intelligente Autonome">
+        <img src="/logo.png" alt="ACGC" class="brand-logo" />
+      </div>
+      <nav class="side-nav">
+        <button class="side-btn active" data-focus="all" title="Accueil">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 11l9-8 9 8"/><path d="M5 10v10h14V10"/></svg>
+        </button>
+        <button class="side-btn" data-focus="cardRfid" title="Sécurité">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+        </button>
+        <button class="side-btn" id="cameraNavBtn" title="Caméra en plein écran">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="15" height="10" rx="2"/><path d="M17 10l5-3v10l-5-3"/></svg>
+        </button>
+        <button class="side-btn" data-focus="cardHistTemp,cardHistHum,cardHabits" title="Historique">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v18h18"/><path d="M7 15l4-4 4 3 5-6"/></svg>
+        </button>
+        <button class="side-btn" id="journalNavBtn" title="Journal complet des événements">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="3" width="16" height="18" rx="2"/><path d="M8 8h8M8 12h8M8 16h5"/></svg>
+        </button>
+        <button class="side-btn" data-focus="cardEquip" title="Paramètres">
+          <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 00.33 1.82l.06.06a2 2 0 11-2.83 2.83l-.06-.06a1.65 1.65 0 00-1.82-.33 1.65 1.65 0 00-1 1.51V21a2 2 0 01-4 0v-.09A1.65 1.65 0 009 19.4a1.65 1.65 0 00-1.82.33l-.06.06a2 2 0 11-2.83-2.83l.06-.06A1.65 1.65 0 004.6 15a1.65 1.65 0 00-1.51-1H3a2 2 0 010-4h.09A1.65 1.65 0 004.6 9a1.65 1.65 0 00-.33-1.82l-.06-.06a2 2 0 112.83-2.83l.06.06A1.65 1.65 0 009 4.6a1.65 1.65 0 001-1.51V3a2 2 0 014 0v.09a1.65 1.65 0 001 1.51 1.65 1.65 0 001.82-.33l.06-.06a2 2 0 112.83 2.83l-.06.06A1.65 1.65 0 0019.4 9c.2.4.51.74.9 1H21a2 2 0 010 4h-.09a1.65 1.65 0 00-1.51 1z"/></svg>
+        </button>
+      </nav>
+    </aside>
+
+    <!-- ============ CONTENU PRINCIPAL ============ -->
+    <main class="main">
+
+      <header class="topbar">
+        <div class="topbar-title">
+          <h1>Maison Intelligente <span>Autonome</span></h1>
+          <p>Tableau de bord — supervision en temps réel</p>
+        </div>
+        <div class="topbar-status">
+          <span class="live-dot"></span>
+          <span id="connStatus">Connexion…</span>
+          <span class="clock" id="clock">--:--:--</span>
+          <button id="logoutBtn" class="logout-btn" title="Se déconnecter">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"/><path d="M16 17l5-5-5-5"/><path d="M21 12H9"/></svg>
+          </button>
+        </div>
+      </header>
+
+      <!-- ============ GRILLE 3 x 5 ============ -->
+      <div class="dash-grid">
+
+        <!-- ---------- RANGÉE 1 : capteurs ---------- -->
+        <section class="dash-row">
+          <article class="card gauge-card" id="cardTemp">
+            <h3>Température <span class="unit-tag">DHT11</span></h3>
+            <div class="gauge-wrap"><canvas id="gaugeTemp"></canvas><div class="gauge-value" id="valTemp">--<small>°C</small></div></div>
+            <div class="gauge-range"><span>-20</span><span>60</span></div>
+            <div class="mini-chart-wrap"><canvas id="chartTempMini"></canvas></div>
+          </article>
+
+          <article class="card gauge-card" id="cardHum">
+            <h3>Humidité <span class="unit-tag">DHT11</span></h3>
+            <div class="gauge-wrap"><canvas id="gaugeHum"></canvas><div class="gauge-value" id="valHum">--<small>%</small></div></div>
+            <div class="gauge-range"><span>0</span><span>100</span></div>
+            <div class="mini-chart-wrap"><canvas id="chartHumMini"></canvas></div>
+          </article>
+
+          <article class="card gauge-card" id="cardLight">
+            <h3>Luminosité <span class="unit-tag">LDR</span></h3>
+            <div class="gauge-wrap"><canvas id="gaugeLight"></canvas><div class="gauge-value" id="valLight">--<small>lux</small></div></div>
+            <div class="gauge-range"><span>0</span><span>1000</span></div>
+            <div class="mini-chart-wrap"><canvas id="chartLightMini"></canvas></div>
+          </article>
+
+          <article class="card motion-card" id="cardMotion">
+            <h3>Mouvement <span class="unit-tag">IR</span></h3>
+            <div class="motion-body">
+              <svg id="motionIcon" viewBox="0 0 24 24" width="46" height="46" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="5" r="2"/><path d="M9 22l1-8-3-1 2-6 3 2 3-2 2 6-3 1 1 8"/></svg>
+              <p id="motionLabel">Aucun mouvement</p>
+              <p class="motion-sub" id="motionTime">Dernière détection : —</p>
+            </div>
+          </article>
+
+          <article class="card gauge-card" id="cardGas">
+            <h3>Qualité de l'air <span class="unit-tag">MQ2</span></h3>
+            <div class="gauge-wrap"><canvas id="gaugeGas"></canvas><div class="gauge-value" id="valGas">--<small>PPM</small></div></div>
+            <div class="gauge-range"><span>0</span><span>1000</span></div>
+            <p class="gas-tag" id="gasTag">Air normal</p>
+          </article>
+        </section>
+
+        <!-- ---------- RANGÉE 2 : modules ---------- -->
+        <section class="dash-row">
+          <article class="card rfid-card" id="cardRfid">
+            <h3>Accès RFID</h3>
+            <div class="rfid-body" id="rfidBody">
+              <svg viewBox="0 0 24 24" width="30" height="30" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="2" y="6" width="20" height="13" rx="2"/><path d="M7 10h4M7 14h7"/></svg>
+              <p class="rfid-status">En attente d'un badge…</p>
+              <p class="rfid-uid" id="rfidUid">—</p>
+              <p class="rfid-time" id="rfidTime"></p>
+            </div>
+          </article>
+
+          <article class="card camera-card" id="cardCamera">
+            <h3>Caméra — Entrée principale
+              <button class="card-expand-btn" id="expandCameraBtn" title="Vue gros plan">
+                <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>
+              </button>
+            </h3>
+            <div class="camera-body" id="cameraBody" title="Cliquer pour agrandir">
+              <svg viewBox="0 0 24 24" width="34" height="34" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="2" y="7" width="15" height="10" rx="2"/><path d="M17 10l5-3v10l-5-3"/></svg>
+              <p>Caméra hors ligne</p>
+            </div>
+          </article>
+
+          <article class="card voice-card" id="cardVoice">
+            <h3>Assistant vocal</h3>
+            <div class="voice-body">
+              <button id="voiceBtn" class="voice-btn">
+                <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.8"><rect x="9" y="2" width="6" height="12" rx="3"/><path d="M5 10a7 7 0 0014 0"/><path d="M12 19v3"/></svg>
+              </button>
+              <p id="voiceStatus">Appuyez pour parler</p>
+              <div class="waveform" id="waveform">
+                <span></span><span></span><span></span><span></span><span></span><span></span><span></span>
+              </div>
+            </div>
+          </article>
+
+          <article class="card equip-card" id="cardEquip">
+            <h3>État des équipements</h3>
+            <ul class="equip-list">
+              <li>
+                <span>Lumière salon</span>
+                <label class="switch"><input type="checkbox" id="swLight"><span class="slider"></span></label>
+              </li>
+              <li>
+                <span>Climatisation</span>
+                <label class="switch"><input type="checkbox" id="swClim"><span class="slider"></span></label>
+              </li>
+              <li>
+                <span>Ventilateur</span>
+                <label class="switch"><input type="checkbox" id="swFan"><span class="slider"></span></label>
+              </li>
+              <li>
+                <span>Porte d'entrée</span>
+                <label class="switch"><input type="checkbox" id="swDoor"><span class="slider"></span></label>
+              </li>
+              <li>
+                <span>Alarme</span>
+                <label class="switch"><input type="checkbox" id="swAlarm"><span class="slider"></span></label>
+              </li>
+            </ul>
+          </article>
+
+          <article class="card ai-card" id="cardAi">
+            <h3>Analyse IA &amp; Automatisation</h3>
+            <div class="ai-body">
+              <div class="ai-status-row">
+                <svg viewBox="0 0 24 24" width="26" height="26" fill="none" stroke="currentColor" stroke-width="1.6"><path d="M9.5 2A2.5 2.5 0 0012 4.5v0A2.5 2.5 0 0014.5 2 2.5 2.5 0 0117 4.5v.5a2.5 2.5 0 012 2.5 2.5 2.5 0 01-1 2 2.5 2.5 0 011 2 2.5 2.5 0 01-2 2.45V15a2.5 2.5 0 01-2.5 2.5A2.5 2.5 0 0112 20v0a2.5 2.5 0 00-2.5-2.5A2.5 2.5 0 017 15v-.05A2.5 2.5 0 015 12.5a2.5 2.5 0 011-2 2.5 2.5 0 01-1-2A2.5 2.5 0 017 6v-.5A2.5 2.5 0 019.5 2z"/></svg>
+                <div>
+                  <p class="ai-state">Système opérationnel</p>
+                  <p class="ai-scenario">Scénario actif : <span id="aiScenario">Confort Optimal</span></p>
+                </div>
+              </div>
+              <p class="ai-reco-title">Recommandations IA :</p>
+              <ul class="ai-reco-list" id="aiRecoList">
+                <li>Calcul en cours…</li>
+              </ul>
+              <div class="ai-details" id="aiDetails">
+                <p>Confiance de l'analyse : <strong id="aiConfidence">--%</strong></p>
+                <p>Tendances : <strong id="aiTrend">--</strong></p>
+              </div>
+              <button class="ai-btn" id="aiDetailsBtn">Voir détails</button>
+            </div>
+          </article>
+        </section>
+
+        <!-- ---------- RANGÉE 3 : historique / automatisations / journal ---------- -->
+        <section class="dash-row">
+          <article class="card chart-card" id="cardHistTemp">
+            <h3>Historique température</h3>
+            <div class="chart-flex"><canvas id="chartTemp"></canvas></div>
+          </article>
+
+          <article class="card chart-card" id="cardHistHum">
+            <h3>Historique humidité</h3>
+            <div class="chart-flex"><canvas id="chartHum"></canvas></div>
+          </article>
+
+          <article class="card chart-card" id="cardHabits">
+            <h3>Analyse d'habitudes <span class="unit-tag">IA</span></h3>
+            <p class="habits-sub">Heures d'activité prédominantes</p>
+            <p class="habits-range" id="habitsRange">--h - --h</p>
+            <div class="chart-flex chart-flex-small"><canvas id="chartHabits"></canvas></div>
+          </article>
+
+          <article class="card automations-card" id="cardAutomations">
+            <h3>Automatisations actives</h3>
+            <ul class="automations" id="automationsList">
+              <li data-key="confort"><span>Mode Confort</span><span class="tag-on">Actif</span></li>
+              <li data-key="eclairage"><span>Éclairage automatique</span><span class="tag-on">Actif</span></li>
+              <li data-key="ventilation"><span>Ventilation intelligente</span><span class="tag-on">Actif</span></li>
+              <li data-key="securite"><span>Sécurité renforcée</span><span class="tag-on">Actif</span></li>
+            </ul>
+            <button class="manage-btn" id="manageBtn">Gérer les automatisations</button>
+          </article>
+
+          <article class="card journal-card" id="cardJournal">
+            <h3>Journal des événements</h3>
+            <ul class="journal-list" id="journalList">
+              <li class="journal-empty">Aucun événement pour le moment</li>
+            </ul>
+          </article>
+        </section>
+
+      </div>
+    </main>
+
+  </div>
+
+  <!-- ============ BARRE DE STATUT ============ -->
+  <footer class="status-footer">
+    <span class="status-dot"></span>
+    <span>Système en ligne</span>
+    <span class="footer-sep">|</span>
+    <span id="footerDate">--</span>
+    <span class="footer-sep">|</span>
+    <span id="footerMsg">Tous les systèmes fonctionnent normalement</span>
+  </footer>
+</div>
+
+<div class="alert-toast" id="alertBox">
+  <div class="alert-header">
+    <span class="alert-dot"></span>
+    <span id="alertTitle">Aucune alerte</span>
+  </div>
+  <p id="alertDetail">Tout est calme à la maison.</p>
+</div>
+
+<!-- ============ MODALE : JOURNAL COMPLET DES ÉVÉNEMENTS ============ -->
+<div class="modal-overlay" id="journalModalOverlay">
+  <div class="modal journal-modal">
+    <div class="modal-header">
+      <h2>Journal complet des événements</h2>
+      <div class="modal-header-actions">
+        <button class="modal-danger-btn" id="clearAllEventsBtn">Vider tout le journal</button>
+        <button class="modal-close-btn" id="closeJournalModal" aria-label="Fermer">✕</button>
+      </div>
+    </div>
+    <div class="modal-body">
+      <table class="events-table">
+        <thead>
+          <tr><th>Date &amp; heure</th><th></th><th>Détail</th><th></th></tr>
+        </thead>
+        <tbody id="eventsTableBody">
+          <tr><td colspan="4" class="events-empty">Chargement…</td></tr>
+        </tbody>
+      </table>
+      <div class="events-footer">
+        <span id="eventsCount"></span>
+        <button class="load-more-btn" id="loadMoreEventsBtn">Charger plus</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODALE : CAMÉRA — VUE GROS PLAN ============ -->
+<div class="modal-overlay" id="cameraModalOverlay">
+  <div class="modal camera-modal">
+    <div class="modal-header">
+      <h2>Caméra — Entrée principale</h2>
+      <button class="modal-close-btn" id="closeCameraModal" aria-label="Fermer">✕</button>
+    </div>
+    <div class="modal-body camera-modal-body" id="cameraModalBody">
+      <p class="camera-modal-placeholder">Caméra hors ligne</p>
+    </div>
+  </div>
+</div>
+
+<script src="/socket.io/socket.io.js"></script>
+<script src="/dashboard.js"></script>
+</body>
+</html>
